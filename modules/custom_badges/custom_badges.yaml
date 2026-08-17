@@ -1,0 +1,227 @@
+custom_badges:
+  name: 'Custom Badges'
+  version: v1.0.0
+  creator: You
+  link: https://github.com/Clooos/Bubble-Card/discussions/1984
+  description: |
+    Fügt dem Haupt-Icon einer Bubble Card ein oder mehrere kleine Badges hinzu.
+    Jedes Badge kann ein eigenes Icon, den Zustand/ein Attribut einer Entity
+    und/oder freien Text anzeigen, mit eigener Farbe, Größe, Animation und
+    Sichtbarkeits-Bedingung.
+    <br><br>
+    Konfiguration über den Editor oder in YAML, z. B.:
+    <br><br>
+    <code-block><pre>
+    custom_badges:
+      badges:
+        - label: Akku niedrig
+          icon: mdi:battery-alert
+          entity: sensor.phone_battery
+          show_state: true
+          color: red
+          size: 20
+          animation: shake
+          condition:
+            - condition: numeric_state
+              entity_id: sensor.phone_battery
+              below: 20
+    </pre></code-block>
+  code: |
+    (() => {
+      const badgesConfig = this.config.custom_badges?.badges;
+      if (!badgesConfig || !Array.isArray(badgesConfig) || badgesConfig.length === 0) return;
+
+      const iconContainer = this.querySelector('.bubble-icon-container');
+      if (!iconContainer) return;
+
+      if (!this._cbCache) {
+        this._cbCache = { wrapper: null, watchedEntities: new Set(), lastSignature: '' };
+      }
+      const cache = this._cbCache;
+
+      if (!document.getElementById('custom-badges-style')) {
+        const style = document.createElement('style');
+        style.id = 'custom-badges-style';
+        style.textContent = `
+          .custom-badges-wrapper {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: flex-start;
+            gap: 2px;
+            transform: translate(30%, -30%);
+            pointer-events: none;
+            z-index: 2;
+          }
+          .custom-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: var(--bubble-badge-color, var(--red-color));
+            color: white;
+            font-weight: 600;
+            line-height: 1;
+            box-shadow: 0 0 0 2px var(--card-background-color, #1c1c1c);
+            padding: 0 4px;
+            min-width: 1.4em;
+          }
+          .custom-badge ha-icon {
+            --mdc-icon-size: 70%;
+          }
+          .custom-badge-text {
+            margin-left: 2px;
+            white-space: nowrap;
+          }
+          .custom-badge-pulse { animation: custom-badge-pulse 1.4s ease-in-out infinite; }
+          .custom-badge-shake { animation: custom-badge-shake 0.5s ease-in-out infinite; }
+          .custom-badge-bounce { animation: custom-badge-bounce 1s ease-in-out infinite; }
+          .custom-badge-fade { animation: custom-badge-fade 1.6s ease-in-out infinite; }
+          .custom-badge-glow { animation: custom-badge-glow 1.6s ease-in-out infinite; }
+          @keyframes custom-badge-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+          @keyframes custom-badge-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+          @keyframes custom-badge-bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+          @keyframes custom-badge-fade { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+          @keyframes custom-badge-glow { 0%,100% { box-shadow: 0 0 0 2px var(--card-background-color, #1c1c1c), 0 0 2px 0 currentColor; } 50% { box-shadow: 0 0 0 2px var(--card-background-color, #1c1c1c), 0 0 8px 2px currentColor; } }
+        `;
+        document.head.appendChild(style);
+      }
+
+      cache.watchedEntities.clear();
+      badgesConfig.forEach((b) => { if (b.entity) cache.watchedEntities.add(b.entity); });
+
+      let signature = '';
+      cache.watchedEntities.forEach((entityId) => {
+        const st = hass.states[entityId];
+        if (st) signature += entityId + st.state + (st.last_changed || '');
+      });
+      signature += JSON.stringify(badgesConfig.map((b) => [b.color, b.size, b.animation, b.icon, b.custom_text, b.show_state, b.attribute]));
+
+      if (signature === cache.lastSignature) return;
+      cache.lastSignature = signature;
+
+      if (!cache.wrapper || !cache.wrapper.isConnected) {
+        cache.wrapper = document.createElement('div');
+        cache.wrapper.className = 'custom-badges-wrapper';
+        if (!iconContainer.style.position) iconContainer.style.position = 'relative';
+        iconContainer.appendChild(cache.wrapper);
+      }
+      cache.wrapper.innerHTML = '';
+
+      badgesConfig.forEach((badgeConfig) => {
+        const conditionsMet = !badgeConfig.condition || checkConditionsMet([].concat(badgeConfig.condition), hass);
+        if (!conditionsMet) return;
+
+        const stateObj = badgeConfig.entity ? hass.states[badgeConfig.entity] : null;
+
+        let content = '';
+        let hasText = false;
+
+        if (badgeConfig.custom_text) {
+          let text = badgeConfig.custom_text;
+          if (stateObj) {
+            const stateValue = badgeConfig.attribute
+              ? (hass.formatEntityAttributeValue?.(stateObj, badgeConfig.attribute) ?? stateObj.attributes?.[badgeConfig.attribute])
+              : (hass.formatEntityState?.(stateObj) ?? stateObj.state);
+            text = text.replaceAll('{state}', stateValue ?? '');
+          }
+          content = text;
+          hasText = !!content;
+        } else if (badgeConfig.show_state && stateObj) {
+          content = badgeConfig.attribute
+            ? (hass.formatEntityAttributeValue?.(stateObj, badgeConfig.attribute) ?? stateObj.attributes?.[badgeConfig.attribute] ?? '')
+            : (hass.formatEntityState?.(stateObj) ?? stateObj.state);
+          hasText = !!content;
+        }
+
+        const badge = document.createElement('div');
+        badge.className = 'custom-badge';
+        if (badgeConfig.animation && badgeConfig.animation !== 'none') {
+          badge.classList.add(`custom-badge-${badgeConfig.animation}`);
+        }
+        if (hasText) badge.classList.add('custom-badge-has-text');
+
+        const size = badgeConfig.size || 20;
+        badge.style.height = `${size}px`;
+        badge.style.minWidth = `${size}px`;
+        badge.style.fontSize = `${Math.max(9, size * 0.5)}px`;
+        if (badgeConfig.color) {
+          badge.style.background = `var(--${badgeConfig.color}-color)`;
+          badge.style.color = 'white';
+        }
+
+        const iconHtml = badgeConfig.icon ? `<ha-icon icon="${badgeConfig.icon}"></ha-icon>` : '';
+        const textHtml = hasText ? `<span class="custom-badge-text">${content}</span>` : '';
+        badge.innerHTML = iconHtml + textHtml;
+
+        cache.wrapper.appendChild(badge);
+      });
+    })();
+  editor:
+    - name: badges
+      label: "Badges"
+      selector:
+        object:
+          multiple: true
+          label_field: label
+          description_field: entity
+          fields:
+            label:
+              label: "Name (nur zur Referenz)"
+              selector:
+                text: {}
+            icon:
+              label: "Icon (optional)"
+              selector:
+                icon: {}
+            entity:
+              label: "Entity (optional)"
+              selector:
+                entity: {}
+            attribute:
+              label: "Attribut (optional)"
+              selector:
+                attribute: {}
+            show_state:
+              label: "Entity-Zustand als Text anzeigen"
+              selector:
+                boolean: {}
+            custom_text:
+              label: "Eigener Text (mit {state} kann der Entity-Zustand eingefügt werden)"
+              selector:
+                text: {}
+            color:
+              label: "Farbe"
+              selector:
+                ui_color:
+                  include_none: true
+            size:
+              label: "Größe"
+              selector:
+                number:
+                  min: 12
+                  max: 40
+                  unit_of_measurement: px
+            animation:
+              label: "Animation"
+              selector:
+                select:
+                  options:
+                    - label: "Keine"
+                      value: none
+                    - label: "Pulse"
+                      value: pulse
+                    - label: "Shake"
+                      value: shake
+                    - label: "Bounce"
+                      value: bounce
+                    - label: "Fade"
+                      value: fade
+                    - label: "Glow"
+                      value: glow
+            condition:
+              label: "Sichtbarkeits-Bedingung (optional)"
+              selector:
+                condition: {}
