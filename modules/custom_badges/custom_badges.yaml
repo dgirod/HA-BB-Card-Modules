@@ -1,6 +1,6 @@
 custom_badges:
   name: 'Custom Badges'
-  version: v1.0.0
+  version: v1.0.1
   creator: You
   link: https://github.com/Clooos/Bubble-Card/discussions/1984
   description: |
@@ -105,7 +105,7 @@ custom_badges:
       if (!cache.wrapper || !cache.wrapper.isConnected) {
         cache.wrapper = document.createElement('div');
         cache.wrapper.className = 'custom-badges-wrapper';
-        if (!iconContainer.style.position) iconContainer.style.position = 'relative';
+        if (getComputedStyle(iconContainer).position === 'static') iconContainer.style.position = 'relative';
         iconContainer.appendChild(cache.wrapper);
       }
       cache.wrapper.innerHTML = '';
