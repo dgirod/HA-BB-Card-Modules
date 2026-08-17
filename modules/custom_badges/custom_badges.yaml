@@ -1,6 +1,6 @@
 custom_badges:
   name: 'Custom Badges'
-  version: v1.0.1
+  version: v1.0.2
   creator: You
   link: https://github.com/Clooos/Bubble-Card/discussions/1984
   description: |
@@ -27,12 +27,12 @@ custom_badges:
               below: 20
     </pre></code-block>
   code: |
-    (() => {
+    ${(() => {
       const badgesConfig = this.config.custom_badges?.badges;
-      if (!badgesConfig || !Array.isArray(badgesConfig) || badgesConfig.length === 0) return;
+      if (!badgesConfig || !Array.isArray(badgesConfig) || badgesConfig.length === 0) return '';
 
       const iconContainer = this.querySelector('.bubble-icon-container');
-      if (!iconContainer) return;
+      if (!iconContainer) return '';
 
       if (!this._cbCache) {
         this._cbCache = { wrapper: null, watchedEntities: new Set(), lastSignature: '' };
@@ -99,7 +99,7 @@ custom_badges:
       });
       signature += JSON.stringify(badgesConfig.map((b) => [b.color, b.size, b.animation, b.icon, b.custom_text, b.show_state, b.attribute]));
 
-      if (signature === cache.lastSignature) return;
+      if (signature === cache.lastSignature) return '';
       cache.lastSignature = signature;
 
       if (!cache.wrapper || !cache.wrapper.isConnected) {
@@ -158,7 +158,9 @@ custom_badges:
 
         cache.wrapper.appendChild(badge);
       });
-    })();
+
+      return '';
+    })()}
   editor:
     - name: badges
       label: "Badges"
