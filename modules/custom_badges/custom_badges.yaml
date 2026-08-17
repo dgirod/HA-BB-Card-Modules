@@ -1,6 +1,6 @@
 custom_badges:
   name: 'Custom Badges'
-  version: v1.0.2
+  version: v1.0.3
   creator: DG
   description: |
     Fügt dem Haupt-Icon einer Bubble Card ein oder mehrere kleine Badges hinzu.
@@ -38,7 +38,8 @@ custom_badges:
       }
       const cache = this._cbCache;
 
-      if (!document.getElementById('custom-badges-style')) {
+      const styleHost = this.shadowRoot || document.head;
+      if (!styleHost.querySelector('#custom-badges-style')) {
         const style = document.createElement('style');
         style.id = 'custom-badges-style';
         style.textContent = `
@@ -85,7 +86,7 @@ custom_badges:
           @keyframes custom-badge-fade { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
           @keyframes custom-badge-glow { 0%,100% { box-shadow: 0 0 0 2px var(--card-background-color, #1c1c1c), 0 0 2px 0 currentColor; } 50% { box-shadow: 0 0 0 2px var(--card-background-color, #1c1c1c), 0 0 8px 2px currentColor; } }
         `;
-        document.head.appendChild(style);
+        styleHost.appendChild(style);
       }
 
       cache.watchedEntities.clear();
