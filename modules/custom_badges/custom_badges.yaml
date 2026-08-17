@@ -2,7 +2,6 @@ custom_badges:
   name: 'Custom Badges'
   version: v1.0.1
   creator: You
-  link: https://github.com/Clooos/Bubble-Card/discussions/1984
   description: |
     Fügt dem Haupt-Icon einer Bubble Card ein oder mehrere kleine Badges hinzu.
     Jedes Badge kann ein eigenes Icon, den Zustand/ein Attribut einer Entity
