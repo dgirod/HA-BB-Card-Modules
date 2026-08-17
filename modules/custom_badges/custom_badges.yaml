@@ -1,6 +1,6 @@
 custom_badges:
   name: 'Custom Badges'
-  version: v1.0.1
+  version: v1.0.2
   creator: DG
   description: |
     Fügt dem Haupt-Icon einer Bubble Card ein oder mehrere kleine Badges hinzu.
@@ -30,7 +30,7 @@ custom_badges:
       const badgesConfig = this.config.custom_badges?.badges;
       if (!badgesConfig || !Array.isArray(badgesConfig) || badgesConfig.length === 0) return '';
 
-      const iconContainer = this.querySelector('.bubble-icon-container');
+      const iconContainer = (this.shadowRoot || this).querySelector('.bubble-icon-container');
       if (!iconContainer) return '';
 
       if (!this._cbCache) {
