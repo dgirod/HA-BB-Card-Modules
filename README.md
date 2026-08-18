@@ -1,6 +1,6 @@
 # HA-BB-Card-Modules
 
-Eigene Module für [Bubble Card](https://github.com/Clooos/Bubble-Card) von Cloos.
+Eigene Module für [Bubble Card](https://github.com/Clooos/Bubble-Card) in Homeassistant.
 
 Jedes Modul liegt in einem eigenen Unterordner unter `modules/`.
 
