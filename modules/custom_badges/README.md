@@ -1,20 +1,17 @@
-# HA-BB-Card-Modules
+# Custom Badges - Modul
 
-Eigene Module für [Bubble Card](https://github.com/Clooos/Bubble-Card) in Homeassistant.
+## Zweck: 
+Es fügt dem Haupt-Icon einer Bubble Card konfigurierbare Mini-Badges / Status-Abzeichen hinzu.
 
-Jedes Modul liegt in einem eigenen Unterordner unter `modules/`.
-
-## Module
-
-### custom_badges
-
-📄 [`modules/custom_badges/custom_badges.yaml`](modules/custom_badges/custom_badges.yaml)
-
-Fügt dem Haupt-Icon einer Bubble Card ein oder mehrere kleine Badges hinzu. Jedes Badge kann ein eigenes Icon, den Zustand/ein Attribut einer Entity und/oder freien Text anzeigen, mit eigener Farbe, Größe, Animation und Sichtbarkeits-Bedingung.
+## Wichtigste Features: 
+◦	Positionierung: Badges können in einer der vier Ecken des Icons platziert werden (top-right, top-left, bottom-right, bottom-left).
+◦	Inhalt: Anzeige von MDI-Icons, aktuellen Sensor-Zuständen (show_state), Attributwerten oder individuellem Text (custom_text mit {state}-Platzhalter).
+◦	Dynamisches Design: Unterscheidet zwischen Icon-Badges (kreisförmig) und Text-Badges (Pill-Form), skaliert Icon- und Schriftgröße automatisch passend zur Badge-Grösse.
+◦	Bedingungen & Effekte: Unterstützt Sichtbarkeits-Bedingungen (condition) und Animationen (z. B. glow, fade).
 
 **Installation:**
 
-1. Inhalt der Datei [`custom_badges.yaml`](modules/custom_badges/custom_badges.yaml) kopieren
+1. Inhalt der YAML-Datei kopieren
 2. In Home Assistant im Bubble Card Editor der jeweiligen Karte auf **"Import from YAML"** klicken
 3. Den kopierten Inhalt einfügen und speichern
 4. Im Editor unter **Badges** die gewünschten Badges konfigurieren (Icon, Entity, Attribut, Text, Farbe, Größe, Animation, Sichtbarkeits-Bedingung)
