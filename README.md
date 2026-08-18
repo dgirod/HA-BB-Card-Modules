@@ -18,5 +18,3 @@ Fügt dem Haupt-Icon einer Bubble Card ein oder mehrere kleine Badges hinzu. Jed
 2. In Home Assistant im Bubble Card Editor der jeweiligen Karte auf **"Import from YAML"** klicken
 3. Den kopierten Inhalt einfügen und speichern
 4. Im Editor unter **Badges** die gewünschten Badges konfigurieren (Icon, Entity, Attribut, Text, Farbe, Größe, Animation, Sichtbarkeits-Bedingung)
-
-Weitere Infos und Diskussion: https://github.com/Clooos/Bubble-Card/discussions/1984
